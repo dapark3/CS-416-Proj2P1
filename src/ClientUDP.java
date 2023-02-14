@@ -44,24 +44,27 @@ public class ClientUDP {
         socket.send(request);
         //receive the reply packet from server
         DatagramPacket reply = new DatagramPacket(
-                new byte[32], 32);
+                new byte[8], 8);
         socket.receive(reply);
         byte[] replyMessage = reply.getData();
         //Convert byte array to integer
         ByteBuffer buffer1 = ByteBuffer.wrap(replyMessage);
         int replyMessageInt = buffer1.getInt();
-        long secsSinceEpoch = 2147483647+replyMessageInt;
-        secsSinceEpoch += 2147483647;
+        int maxSignedInt = 2147483647;
+        long secsSinceEpoch = maxSignedInt+replyMessageInt;
+        secsSinceEpoch += maxSignedInt;
         System.out.println("Seconds since 1900: " + (secsSinceEpoch) + " Seconds");
         //convert integer to a calendar format
         Calendar calendar = Calendar.getInstance();
         calendar.set(1900, Calendar.JANUARY,1);
-        calendar.add(Calendar.SECOND, 2147483647);
-        calendar.add(Calendar.SECOND, 2147483647);
+        //calendar.add cannot take longs, so re-implement secsSinceEpoch
+        calendar.add(Calendar.SECOND, maxSignedInt);
+        calendar.add(Calendar.SECOND, maxSignedInt);
         calendar.add(Calendar.SECOND, replyMessageInt);
         //convert calendar to date format for date string
         DateFormat sdf = SimpleDateFormat.getInstance();
         sdf.setCalendar(calendar);
+        //print string
         System.out.println("Current Date: "+sdf.getCalendar().getTime());
     }
 }
